@@ -1,65 +1,103 @@
-var diffEls = document.querySelectorAll(".diff__btn");
-var diffEl = document.querySelector(".diff__btn.active").innerHTML;
-var n = diffEl;
-var colorsEl = document.querySelector(".colors");
-var colorsBlocks;
-var rgbEl = document.querySelector(".rgb");
-var statusEl = document.querySelector(".status");
-var colors = [];
-createBlocks(n);
-resetGame();
+var numSquares = 9;
+var colors = generateRandomColors(numSquares);
+var squares = document.querySelectorAll(".square");
+var pickedColors = randomColorGenerate();
+var colorDisplay = document.querySelector("#colorDisplay");
+var statusDisplay = document.querySelector("#status");
+var header = document.querySelector("header");
+var easybtn = document.querySelector("#easybtn");
+var hardbtn = document.querySelector("#hardbtn");
+var resetbtn = document.querySelector("#reset");
 
-function checkColors(e) {
-  // your code here
+easybtn.addEventListener("click", function() {
+	hardbtn.classList.remove("selected");
+	easybtn.classList.add("selected");
+	numSquares = 6;
+	header.style.background = "white";
+	statusDisplay.textContent = "Try to guess the right color based on the RGB value by clicking on the blocks."
+	colors = generateRandomColors(numSquares);
+	pickedColors = randomColorGenerate();
+	colorDisplay.textContent = pickedColors;
+	for (var i = 0; i < squares.length; i++) {
+		if (colors[i]) {
+			squares[i].style.background = colors[i];
+		}
+		else{
+		squares[i].style.display = "none";
+		}
+	}
+});
+
+hardbtn.addEventListener("click", function() {
+	easybtn.classList.remove("selected");
+	hardbtn.classList.add("selected");
+	statusDisplay.textContent = "Try to guess the right color based on the RGB value by clicking on the blocks."
+	numSquares = 9;
+	header.style.background = "white";
+	colors = generateRandomColors(numSquares);
+	pickedColors = randomColorGenerate();
+	colorDisplay.textContent = pickedColors;
+	for (var i = 0; i < squares.length; i++) {
+		squares[i].style.backgroundColor = colors[i];
+		squares[i].style.display = "block";
+	}	
+});
+
+resetbtn.addEventListener('click', function(){
+	colors = generateRandomColors(numSquares);
+	pickedColors = randomColorGenerate();
+	colorDisplay.textContent = pickedColors;
+	resetbtn.textContent = "New Game";
+	statusDisplay.textContent = "Try to guess the right color based on the RGB value by clicking on the blocks."	
+	for (var i = 0; i < squares.length; i++) {
+		squares[i].style.backgroundColor = colors[i];
+	}
+	header.style.background = "white";
+});
+
+colorDisplay.textContent = pickedColors;
+for (var i = 0; i < squares.length; i++) {
+	squares[i].style.backgroundColor = colors[i];
+	squares[i].addEventListener('click', function(){
+		var clickedColor = this.style.backgroundColor;
+		console.log(clickedColor, pickedColors);
+		if (clickedColor === pickedColors) {
+			statusDisplay.textContent = "Correct! You win";
+			resetbtn.textContent = "Play Again?";
+			changeColors(clickedColor);
+			header.style.background = clickedColor;
+		}
+		else{
+			this.style.backgroundColor = "white";
+			statusDisplay.textContent = "Wrong! Try Again";
+		}
+	});
 }
 
-function resetGame() {
-  createBlocks(n);
-  document.body.style.color = "black";
-  colors = [];
-  pickColors();
-  pickedColor = random(n);
-  rgbEl.innerHTML = colors[pickedColor];
-  setColors();
-  statusEl.innerHTML =
-    "Try to guess the right color based on the RGB value by clicking on the blocks.";
+function changeColors(colorz){
+	for (var i = 0; i < squares.length; i++) {
+		squares[i].style.background = colorz;
+	}
 }
 
-function setColors() {
-  for (var i = 0; i < colorsBlocks.length; i++) {
-    colorsBlocks[i].style.backgroundColor = colors[i];
-  }
+function randomColorGenerate(){
+	var random = Math.floor(Math.random()*colors.length)
+	return colors[random];
 }
 
-function pickColors() {
-  for (var i = 0; i < n; i++) {
-    colors.push(randomColor());
-  }
+function generateRandomColors(generatedColor){
+	var arr = []
+	for (var i = 0; i < generatedColor; i++) {
+		arr.push(randomColor())
+	}
+	return arr;
 }
 
-function randomColor() {
-  return "rgb(" + random(255) + ", " + random(255) + ", " + random(255) + ")";
+function randomColor(){
+	var r = Math.floor(Math.random()*256);
+	var g = Math.floor(Math.random()*256);
+	var b = Math.floor(Math.random()*256);
+	return "rgb("+ r +", "+ g +", "+ b +")";
 }
 
-function random(r) {
-  return Math.floor(Math.random() * r);
-}
 
-function setNumberOfTiles(e) {
-  // your code here
-}
-
-function createBlocks(num) {
-  colorsEl.innerHTML = "";
-
-  // here is an example of a loop that is used to create the blocks of color depending on you choice ie 6 or 9, however you need to add event listeners
-  for (var i = 0; i < num; i++) {
-    var block = document.createElement("div");
-    block.classList.add("colors__block");
-    colorsEl.appendChild(block);
-  }
-  colorsBlocks = document.querySelectorAll(".colors__block");
-  for (var i = 0; i < colorsBlocks.length; i++) {
-    colorsBlocks[i].addEventListener("click", checkColors);
-  }
-}
